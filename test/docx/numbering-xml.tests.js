@@ -101,3 +101,24 @@ test('when styles is missing then error is thrown', function() {
         readNumberingXml(new XmlElement("w:numbering", {}, []));
     }, /styles is missing/);
 });
+
+
+test('default to number when w:numFmt is found', function() {
+    var numbering = readNumberingXml(
+        new XmlElement("w:numbering", {}, [
+            new XmlElement("w:abstractNum", {"w:abstractNumId": "42"}, [
+                new XmlElement("w:lvl", {"w:ilvl": "0"}, [])
+            ]),
+            new XmlElement("w:abstractNum", {"w:abstractNumId": "43"}, [
+                new XmlElement("w:lvl", {"w:ilvl": "0"}, [
+                    new XmlElement("w:pStyle", {"w:val": "List"})
+                ])
+            ])
+        ]),
+        {styles: stylesReader.defaultStyles}
+    );
+
+    duck.assertThat(numbering.findLevelByParagraphStyleId("List"), duck.hasProperties({
+        isOrdered: true
+    }));
+});
